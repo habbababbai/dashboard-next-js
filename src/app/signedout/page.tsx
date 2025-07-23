@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { usePageTitle } from "../hooks/common";
 
 export default function SignedOutPage() {
     const router = useRouter();
@@ -11,6 +12,8 @@ export default function SignedOutPage() {
         }, 5000);
         return () => clearTimeout(timer);
     }, [router]);
+
+    usePageTitle("Signed Out | Dashboard App");
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-4">

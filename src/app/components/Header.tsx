@@ -13,18 +13,32 @@ export default function Header() {
                 </span>
             </Link>
             {isLoggedIn ? (
-                <button
-                    className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
-                    onClick={() => signOut({ callbackUrl: "/signedout" })}
-                >
-                    Sign Out
-                </button>
-            ) : (
-                <Link href="/signin">
-                    <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                        Sign In
+                <div className="flex gap-4 items-center">
+                    <Link href="/account">
+                        <button className="px-6 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition">
+                            Account
+                        </button>
+                    </Link>
+                    <button
+                        className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+                        onClick={() => signOut({ callbackUrl: "/signedout" })}
+                    >
+                        Sign Out
                     </button>
-                </Link>
+                </div>
+            ) : (
+                <div className="flex gap-4">
+                    <Link href="/signin">
+                        <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                            Sign In
+                        </button>
+                    </Link>
+                    <Link href="/createAccount">
+                        <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                            Create Account
+                        </button>
+                    </Link>
+                </div>
             )}
         </header>
     );

@@ -1,3 +1,7 @@
+# Dashboard App
+
+> The current main branch of the app is hosted at: [dashboard-next-js-two-chi.vercel.app](https://dashboard-next-js-two-chi.vercel.app)
+
 This is Next.js learning project created with `create-next-app`. Project goal is to create project dashboard like in Asana using Next.js with PostgreSQL.
 
 ## Getting Started

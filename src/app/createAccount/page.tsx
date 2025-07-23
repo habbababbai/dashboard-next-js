@@ -1,42 +1,52 @@
 "use client";
-import { useState } from "react";
+import {useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, useSession } from "next-auth/react";
-import { useEffect } from "react";
+import { signIn } from "next-auth/react";
+import { usePageTitle } from "@/app/hooks/common";
 
-export default function SignInPage() {
-    const { data: session, status } = useSession();
+export default function CreateAccountPage() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-
-    useEffect(() => {
-        if (status === "authenticated") {
-            router.replace("/account");
-        }
-    }, [status, router]);
+    usePageTitle("Create Account | Dashboard App");
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
         setError("");
-        const res = await signIn("credentials", {
-            redirect: false,
-            email,
-            password,
-        });
-        setLoading(false);
-        if (res && res.ok) {
-            router.push("/");
-        } else {
-            setError(res?.error || "Sign in failed");
+        try {
+            const res = await fetch("/api/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password,
+                }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+                // Automatically sign in the user
+                const signInRes = await signIn("credentials", {
+                    redirect: false,
+                    email,
+                    password,
+                });
+                if (signInRes && signInRes.ok) {
+                    router.push("/");
+                } else {
+                    router.push("/signin");
+                }
+            } else {
+                setError(data.error || "Account creation failed");
+            }
+        } catch (err) {
+            setError("An error occurred. Please try again.");
         }
-    }
-
-    if (status === "loading" || status === "authenticated") {
-        return <div>Loading...</div>;
+        setLoading(false);
     }
 
     return (
@@ -45,7 +55,17 @@ export default function SignInPage() {
                 onSubmit={handleSubmit}
                 className="w-full max-w-sm bg-white dark:bg-gray-900 p-8 rounded shadow"
             >
-                <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
+                <h2 className="text-2xl font-bold mb-6 text-center">
+                    Create Account
+                </h2>
+                <label className="block mb-2">Name</label>
+                <input
+                    type="text"
+                    className="w-full mb-4 px-3 py-2 border rounded"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                />
                 <label className="block mb-2">Email</label>
                 <input
                     type="email"
@@ -70,7 +90,7 @@ export default function SignInPage() {
                     className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                     disabled={loading}
                 >
-                    {loading ? "Signing in..." : "Sign In"}
+                    {loading ? "Creating..." : "Create Account"}
                 </button>
             </form>
         </div>

@@ -2,13 +2,13 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import type { AuthOptions, Session, User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: {
         strategy: "jwt" as const,
@@ -52,6 +52,7 @@ const authOptions: AuthOptions = {
     ],
     pages: {
         signIn: "/signin",
+        signOut: "/signedout",
         // You can add error, signOut, etc. if you want custom pages
     },
     callbacks: {
@@ -71,6 +72,9 @@ const authOptions: AuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
+const handler = async (req: Request, ctx: unknown) => {
+    // Fallback to NextAuth for all requests
+    return NextAuth(authOptions)(req, ctx);
+};
 
 export { handler as GET, handler as POST };

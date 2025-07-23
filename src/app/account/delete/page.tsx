@@ -1,4 +1,5 @@
 "use client";
+import { usePageTitle } from "@/app/hooks/common";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -9,6 +10,7 @@ export default function DeleteAccountPage() {
     const router = useRouter();
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    usePageTitle("Delete Account | Dashboard App");
 
     async function handleDelete() {
         if (!email) return;

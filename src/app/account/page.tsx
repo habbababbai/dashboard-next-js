@@ -1,19 +1,21 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { User } from "@/app/types/user";
 import { getUserByEmail } from "@/app/helpers/api";
+import { usePageTitle } from "@/app/hooks/common";
 
 export default function AccountPage() {
-    const { data: session, status } = useSession();
+    usePageTitle("Account | Dashboard App");
+    const { data: session } = useSession();
     const email = session?.user?.email;
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const router = useRouter();
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!email) {
             setLoading(false);
             return;

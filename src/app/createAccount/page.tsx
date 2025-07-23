@@ -1,7 +1,8 @@
 "use client";
-import { useState } from "react";
+import {useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { usePageTitle } from "@/app/hooks/common";
 
 export default function CreateAccountPage() {
     const [name, setName] = useState("");
@@ -10,6 +11,7 @@ export default function CreateAccountPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    usePageTitle("Create Account | Dashboard App");
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();

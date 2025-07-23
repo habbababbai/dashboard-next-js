@@ -1,14 +1,22 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function SignInPage() {
+    const { data: session, status } = useSession();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.replace("/account");
+        }
+    }, [status, router]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -25,6 +33,10 @@ export default function SignInPage() {
         } else {
             setError(res?.error || "Sign in failed");
         }
+    }
+
+    if (status === "loading" || status === "authenticated") {
+        return <div>Loading...</div>;
     }
 
     return (

@@ -1,14 +1,18 @@
 import { PrismaClient } from "@prisma/client";
+import { hash } from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
     console.log("Seeding database...");
+    // Hash passwords
+    const alicePassword = await hash("password123", 10);
+    const bobPassword = await hash("password123", 10);
     // Create users
     const alice = await prisma.user.create({
         data: {
             name: "Alice",
             email: "alice@example.com",
-            password: "password123", // In production, hash passwords!
+            password: alicePassword,
         },
     });
 
@@ -16,7 +20,7 @@ async function main() {
         data: {
             name: "Bob",
             email: "bob@example.com",
-            password: "password123",
+            password: bobPassword,
         },
     });
 

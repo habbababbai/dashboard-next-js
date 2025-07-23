@@ -23,7 +23,7 @@ pnpm exec prisma migrate dev --name init
 Populate the database with test data:
 
 ```bash
-pnpm exec prisma db seed
+pnpm exec ts-node prisma/seed.ts
 ```
 
 ### Start the Development Server

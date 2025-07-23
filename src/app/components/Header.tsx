@@ -15,7 +15,7 @@ export default function Header() {
             {isLoggedIn ? (
                 <button
                     className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
-                    onClick={() => signOut({ callbackUrl: "/" })}
+                    onClick={() => signOut({ callbackUrl: "/signedout" })}
                 >
                     Sign Out
                 </button>

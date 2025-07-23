@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 const { hash } = await import("bcryptjs");
 
 const prisma = new PrismaClient();
@@ -38,14 +40,39 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+    const session = await getServerSession(authOptions);
+
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
+
+
+    if (!session || !session.user?.email) {
+        return new Response(
+            JSON.stringify({ error: "Unauthorized. You must be signed in." }),
+            {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
 
     if (!email) {
         return new Response(
             JSON.stringify({ error: "Email query parameter is required." }),
             {
                 status: 400,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+
+    if (email !== session.user.email) {
+        return new Response(
+            JSON.stringify({
+                error: "Forbidden. You can only delete your own account.",
+            }),
+            {
+                status: 403,
                 headers: { "Content-Type": "application/json" },
             }
         );

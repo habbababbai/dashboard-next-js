@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import type { AuthOptions, Session, User } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
@@ -71,6 +71,48 @@ const authOptions: AuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
+const handler = async (req: Request, ctx: unknown) => {
+    if (req.method === "POST") {
+        try {
+            const contentType = req.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                const body = await req.json();
+                if (body.action === "register") {
+                    const { name, email, password } = body;
+                    if (!name || !email || !password) {
+                        return new Response(
+                            JSON.stringify({
+                                error: "All fields are required.",
+                            }),
+                            { status: 400 }
+                        );
+                    }
+                    const existingUser = await prisma.user.findUnique({
+                        where: { email },
+                    });
+                    if (existingUser) {
+                        return new Response(
+                            JSON.stringify({ error: "Email already in use." }),
+                            { status: 409 }
+                        );
+                    }
+                    const hashedPassword = await hash(password, 10);
+                    await prisma.user.create({
+                        data: { name, email, password: hashedPassword },
+                    });
+                    return new Response(JSON.stringify({ success: true }), {
+                        status: 201,
+                    });
+                }
+            }
+        } catch (error) {
+            return new Response(JSON.stringify({ error: "Server error." }), {
+                status: 500,
+            });
+        }
+    }
+    // Fallback to NextAuth for all other requests
+    return NextAuth(authOptions)(req, ctx);
+};
 
 export { handler as GET, handler as POST };

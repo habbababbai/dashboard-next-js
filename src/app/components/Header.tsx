@@ -20,11 +20,18 @@ export default function Header() {
                     Sign Out
                 </button>
             ) : (
-                <Link href="/signin">
-                    <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                        Sign In
-                    </button>
-                </Link>
+                <div className="flex gap-4">
+                    <Link href="/signin">
+                        <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                            Sign In
+                        </button>
+                    </Link>
+                    <Link href="/createAccount">
+                        <button className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                            Create Account
+                        </button>
+                    </Link>
+                </div>
             )}
         </header>
     );

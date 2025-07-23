@@ -13,12 +13,19 @@ export default function Header() {
                 </span>
             </Link>
             {isLoggedIn ? (
-                <button
-                    className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
-                    onClick={() => signOut({ callbackUrl: "/signedout" })}
-                >
-                    Sign Out
-                </button>
+                <div className="flex gap-4 items-center">
+                    <Link href="/account">
+                        <button className="px-6 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition">
+                            Account
+                        </button>
+                    </Link>
+                    <button
+                        className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+                        onClick={() => signOut({ callbackUrl: "/signedout" })}
+                    >
+                        Sign Out
+                    </button>
+                </div>
             ) : (
                 <div className="flex gap-4">
                     <Link href="/signin">

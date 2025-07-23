@@ -8,7 +8,7 @@ import type { JWT } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: {
         strategy: "jwt" as const,

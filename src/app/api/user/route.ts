@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+const { hash } = await import("bcryptjs");
 
 const prisma = new PrismaClient();
 
@@ -35,3 +36,5 @@ export async function GET(request: Request) {
         headers: { "Content-Type": "application/json" },
     });
 }
+
+// POST handler removed; this endpoint now only supports GET for fetching user data.

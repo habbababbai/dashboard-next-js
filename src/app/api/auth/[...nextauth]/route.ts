@@ -52,6 +52,7 @@ export const authOptions: AuthOptions = {
     ],
     pages: {
         signIn: "/signin",
+        signOut: "/signedout",
         // You can add error, signOut, etc. if you want custom pages
     },
     callbacks: {
@@ -72,46 +73,7 @@ export const authOptions: AuthOptions = {
 };
 
 const handler = async (req: Request, ctx: unknown) => {
-    if (req.method === "POST") {
-        try {
-            const contentType = req.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const body = await req.json();
-                if (body.action === "register") {
-                    const { name, email, password } = body;
-                    if (!name || !email || !password) {
-                        return new Response(
-                            JSON.stringify({
-                                error: "All fields are required.",
-                            }),
-                            { status: 400 }
-                        );
-                    }
-                    const existingUser = await prisma.user.findUnique({
-                        where: { email },
-                    });
-                    if (existingUser) {
-                        return new Response(
-                            JSON.stringify({ error: "Email already in use." }),
-                            { status: 409 }
-                        );
-                    }
-                    const hashedPassword = await hash(password, 10);
-                    await prisma.user.create({
-                        data: { name, email, password: hashedPassword },
-                    });
-                    return new Response(JSON.stringify({ success: true }), {
-                        status: 201,
-                    });
-                }
-            }
-        } catch (error) {
-            return new Response(JSON.stringify({ error: "Server error." }), {
-                status: 500,
-            });
-        }
-    }
-    // Fallback to NextAuth for all other requests
+    // Fallback to NextAuth for all requests
     return NextAuth(authOptions)(req, ctx);
 };
 

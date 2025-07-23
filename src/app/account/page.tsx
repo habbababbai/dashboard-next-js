@@ -1,7 +1,7 @@
 import React from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { User } from "@/app/types/User";
+import { User } from "@/app/types/user";
 import { getUserByEmail } from "@/app/helpers/api";
 
 export default async function AccountPage() {

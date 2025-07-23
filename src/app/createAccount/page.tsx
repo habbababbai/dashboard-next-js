@@ -16,11 +16,10 @@ export default function CreateAccountPage() {
         setLoading(true);
         setError("");
         try {
-            const res = await fetch("/api/auth/[...nextauth]", {
+            const res = await fetch("/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    action: "register",
                     name,
                     email,
                     password,

@@ -1,9 +1,7 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 
 export default function DeleteButton({ email }: { email: string }) {
-    const router = useRouter();
 
     async function handleDelete() {
         const res = await fetch(

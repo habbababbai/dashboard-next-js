@@ -1,6 +1,10 @@
+// Server component
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { prisma } from "@/lib/prisma";
+import AccountPageClient from "./AccountPageClient";
+
+export const metadata = { title: "Account | Dashboard App" };
 
 export default async function AccountPage() {
     const session = await getServerSession(authOptions);
@@ -16,20 +20,17 @@ export default async function AccountPage() {
         return <div>User not found.</div>;
     }
 
+    // Format the joined date on the server to avoid hydration errors
+    const joinedDate = user.createdAt.toLocaleDateString("en-US");
+
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-2">Account Details</h1>
-            <div className="mb-1">Name: {user.name}</div>
-            <div className="mb-1">Email: {user.email}</div>
-            <div className="text-sm text-gray-500 mb-4">
-                Joined: {new Date(user.createdAt).toLocaleDateString()}
-            </div>
-            <a
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition inline-block"
-                href="/account/delete"
-            >
-                Delete Account
-            </a>
-        </div>
+        <AccountPageClient
+            user={{
+                name: user.name,
+                email: user.email,
+                createdAt: user.createdAt.toISOString(),
+                joinedDate,
+            }}
+        />
     );
 }

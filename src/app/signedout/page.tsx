@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const metadata = { title: "Signed Out | Dashboard App" };
+
 export default function SignedOutPage() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-4">

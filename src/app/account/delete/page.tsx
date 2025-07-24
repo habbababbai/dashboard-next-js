@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import DeleteButton from "./DeleteButton";
 
+export const metadata = { title: "Delete Account | Dashboard App" };
+
 export default async function DeleteAccountPage() {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {

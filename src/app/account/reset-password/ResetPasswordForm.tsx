@@ -1,51 +1,54 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 
-export default function CreateAccountForm() {
-    const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+export default function ResetPasswordForm() {
+    const [currentPassword, setCurrentPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+
+    useEffect(() => {
+        if (success) {
+            const timer = setTimeout(() => {
+                router.push("/account");
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [success, router]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setError("");
-        if (password !== confirmPassword) {
-            setError("Passwords do not match.");
+        setSuccess("");
+        if (newPassword !== confirmPassword) {
+            setError("New passwords do not match.");
             return;
         }
         setLoading(true);
         try {
-            const res = await fetch("/api/register", {
-                method: "POST",
+            const res = await fetch("/api/user", {
+                method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    name,
-                    email,
-                    password,
+                    password: newPassword,
+                    currentPassword,
                 }),
             });
             const data = await res.json();
             if (res.ok) {
-                // Automatically sign in the user
-                const signInRes = await signIn("credentials", {
-                    redirect: false,
-                    email,
-                    password,
-                });
-                if (signInRes && signInRes.ok) {
-                    router.push("/");
-                } else {
-                    router.push("/signin");
-                }
+                setSuccess(
+                    "Password updated successfully. You will be redirected to your account page."
+                );
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
             } else {
-                setError(data.error || "Account creation failed");
+                setError(data.error || "Failed to update password.");
             }
         } catch (err) {
             setError("An error occurred. Please try again.");
@@ -59,31 +62,15 @@ export default function CreateAccountForm() {
             className="w-full max-w-sm bg-white dark:bg-gray-900 p-8 rounded shadow"
         >
             <h2 className="text-2xl font-bold mb-6 text-center">
-                Create Account
+                Reset Password
             </h2>
-            <label className="block mb-2">Name</label>
-            <input
-                type="text"
-                className="w-full mb-4 px-3 py-2 border rounded"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-            />
-            <label className="block mb-2">Email</label>
-            <input
-                type="email"
-                className="w-full mb-4 px-3 py-2 border rounded"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-            />
-            <label className="block mb-2">Password</label>
+            <label className="block mb-2">Current Password</label>
             <div className="relative mb-4">
                 <input
                     type={showPassword ? "text" : "password"}
                     className="w-full px-3 py-2 border rounded pr-10"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
                     required
                 />
                 <button
@@ -95,7 +82,25 @@ export default function CreateAccountForm() {
                     {showPassword ? "Hide" : "Show"}
                 </button>
             </div>
-            <label className="block mb-2">Confirm Password</label>
+            <label className="block mb-2">New Password</label>
+            <div className="relative mb-4">
+                <input
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-3 py-2 border rounded pr-10"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                />
+                <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600"
+                    onClick={() => setShowPassword((v) => !v)}
+                    tabIndex={-1}
+                >
+                    {showPassword ? "Hide" : "Show"}
+                </button>
+            </div>
+            <label className="block mb-2">Confirm New Password</label>
             <div className="relative mb-4">
                 <input
                     type={showPassword ? "text" : "password"}
@@ -114,12 +119,15 @@ export default function CreateAccountForm() {
                 </button>
             </div>
             {error && <div className="mb-4 text-red-600 text-sm">{error}</div>}
+            {success && (
+                <div className="mb-4 text-green-600 text-sm">{success}</div>
+            )}
             <button
                 type="submit"
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                 disabled={loading}
             >
-                {loading ? "Creating..." : "Create Account"}
+                {loading ? "Updating..." : "Update Password"}
             </button>
         </form>
     );

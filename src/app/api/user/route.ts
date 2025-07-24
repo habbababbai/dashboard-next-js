@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-const { hash } = await import("bcryptjs");
+const { hash, compare } = await import("bcryptjs");
 
 const prisma = new PrismaClient();
 
@@ -44,7 +44,6 @@ export async function DELETE(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
-
 
     if (!session || !session.user?.email) {
         return new Response(
@@ -98,6 +97,87 @@ export async function DELETE(request: Request) {
             }),
             {
                 status: 404,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+}
+
+export async function PATCH(request: Request) {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+        return new Response(
+            JSON.stringify({ error: "Unauthorized. You must be signed in." }),
+            {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+
+    const body = await request.json();
+    const { name, email, password, currentPassword } = body;
+
+    // Only allow updating own data
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    });
+    if (!user) {
+        return new Response(JSON.stringify({ error: "User not found." }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (password) {
+        // If currentPassword is provided, verify it
+        if (currentPassword) {
+            const isMatch = await compare(currentPassword, user.password);
+            if (!isMatch) {
+                return new Response(
+                    JSON.stringify({ error: "Current password is incorrect." }),
+                    {
+                        status: 400,
+                        headers: { "Content-Type": "application/json" },
+                    }
+                );
+            }
+        }
+        updateData.password = await hash(password, 10);
+    }
+
+    if (Object.keys(updateData).length === 0) {
+        return new Response(
+            JSON.stringify({ error: "No valid fields to update." }),
+            {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+
+    try {
+        const updatedUser = await prisma.user.update({
+            where: { email: session.user.email },
+            data: updateData,
+        });
+        // Exclude password from response
+        const { password, ...userWithoutPassword } = updatedUser;
+        return new Response(
+            JSON.stringify({ success: true, user: userWithoutPassword }),
+            {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    } catch (error) {
+        return new Response(
+            JSON.stringify({ error: "Failed to update user." }),
+            {
+                status: 500,
                 headers: { "Content-Type": "application/json" },
             }
         );

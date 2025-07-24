@@ -2,6 +2,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { prisma } from "@/lib/prisma";
 
+export const metadata = { title: "Account | Dashboard App" };
+
 export default async function AccountPage() {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.email) {

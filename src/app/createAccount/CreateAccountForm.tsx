@@ -7,14 +7,20 @@ export default function CreateAccountForm() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        setLoading(true);
         setError("");
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+        setLoading(true);
         try {
             const res = await fetch("/api/register", {
                 method: "POST",
@@ -72,13 +78,41 @@ export default function CreateAccountForm() {
                 required
             />
             <label className="block mb-2">Password</label>
-            <input
-                type="password"
-                className="w-full mb-4 px-3 py-2 border rounded"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-            />
+            <div className="relative mb-4">
+                <input
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-3 py-2 border rounded pr-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600"
+                    onClick={() => setShowPassword((v) => !v)}
+                    tabIndex={-1}
+                >
+                    {showPassword ? "Hide" : "Show"}
+                </button>
+            </div>
+            <label className="block mb-2">Confirm Password</label>
+            <div className="relative mb-4">
+                <input
+                    type={showPassword ? "text" : "password"}
+                    className="w-full px-3 py-2 border rounded pr-10"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                />
+                <button
+                    type="button"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-gray-600"
+                    onClick={() => setShowPassword((v) => !v)}
+                    tabIndex={-1}
+                >
+                    {showPassword ? "Hide" : "Show"}
+                </button>
+            </div>
             {error && <div className="mb-4 text-red-600 text-sm">{error}</div>}
             <button
                 type="submit"

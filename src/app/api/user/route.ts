@@ -129,7 +129,7 @@ export async function PATCH(request: Request) {
         });
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (name) updateData.name = name;
     if (email) updateData.email = email;
     if (password) {
@@ -165,7 +165,8 @@ export async function PATCH(request: Request) {
             data: updateData,
         });
         // Exclude password from response
-        const { password, ...userWithoutPassword } = updatedUser;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password: _password, ...userWithoutPassword } = updatedUser;
         return new Response(
             JSON.stringify({ success: true, user: userWithoutPassword }),
             {
@@ -173,7 +174,7 @@ export async function PATCH(request: Request) {
                 headers: { "Content-Type": "application/json" },
             }
         );
-    } catch (error) {
+    } catch {
         return new Response(
             JSON.stringify({ error: "Failed to update user." }),
             {

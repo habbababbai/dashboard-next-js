@@ -50,7 +50,7 @@ export default function ResetPasswordForm() {
             } else {
                 setError(data.error || "Failed to update password.");
             }
-        } catch (err) {
+        } catch {
             setError("An error occurred. Please try again.");
         }
         setLoading(false);

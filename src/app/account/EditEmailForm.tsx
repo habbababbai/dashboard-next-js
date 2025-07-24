@@ -28,7 +28,7 @@ export default function EditEmailForm({
             } else {
                 setError(data.error || "Failed to update email.");
             }
-        } catch (err) {
+        } catch {
             setError("An error occurred. Please try again.");
         }
         setLoading(false);

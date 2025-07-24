@@ -28,7 +28,7 @@ export default function EditNameForm({
             } else {
                 setError(data.error || "Failed to update name.");
             }
-        } catch (err) {
+        } catch {
             setError("An error occurred. Please try again.");
         }
         setLoading(false);

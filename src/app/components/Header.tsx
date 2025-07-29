@@ -19,6 +19,11 @@ export default function Header() {
                             Account
                         </button>
                     </Link>
+                    <Link href="/projects">
+                        <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                            Projects
+                        </button>
+                    </Link>
                     <button
                         className="px-6 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
                         onClick={() => signOut({ callbackUrl: "/signedout" })}

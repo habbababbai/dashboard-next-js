@@ -60,3 +60,21 @@ export async function createProject(data: {
     }
     return res.json();
 }
+
+export async function getProjectById(projectId: number, cookieHeader?: string) {
+    const baseUrl = getBaseUrl();
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+    };
+    if (cookieHeader) {
+        headers["Cookie"] = cookieHeader;
+    }
+    const res = await fetch(`${baseUrl}/api/project/${projectId}`, {
+        cache: "no-store",
+        headers,
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to fetch project: ${res.statusText}`);
+    }
+    return res.json(); // { project }
+}

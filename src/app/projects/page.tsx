@@ -14,7 +14,9 @@ export default async function ProjectsPage({
     try {
         const session = await getServerSession(authOptions);
         const user = session?.user as User;
-        const page = parseInt((searchParams?.page as string) || "1", 10);
+        const awaitedParams = await searchParams;
+        const searchParamsPage = (awaitedParams?.page as string) || "1";
+        const page = parseInt(searchParamsPage || "1", 10);
         const pageSize = 12;
         const { projects, total } = await getProjectsByUserId(
             user?.id,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Project } from "@/app/types/project";
 
 export interface ProjectsClientProps {
@@ -312,12 +313,11 @@ export default function ProjectsClient({
 
                                     {/* Action Buttons */}
                                     <div className="flex space-x-2">
-                                        <button
-                                            disabled
-                                            className="flex-1 bg-gray-600 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed transition-colors duration-200"
-                                        >
-                                            View Details
-                                        </button>
+                                        <Link href={`/projects/${project.id}`}>
+                                            <button className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors duration-200">
+                                                View Details
+                                            </button>
+                                        </Link>
                                         <button
                                             disabled
                                             className="px-4 py-2 border border-gray-600 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed transition-colors duration-200"

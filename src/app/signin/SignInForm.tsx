@@ -13,7 +13,7 @@ export default function SignInForm() {
 
     useEffect(() => {
         if (status === "authenticated") {
-            router.replace("/account");
+            router.replace("/projects");
         }
     }, [status, router]);
 

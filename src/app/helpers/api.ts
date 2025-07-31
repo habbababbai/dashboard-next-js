@@ -1,7 +1,15 @@
 import { User } from "@/app/types/user";
 
 function getBaseUrl() {
-    return process.env.NEXTAUTH_URL;
+    if (typeof window !== "undefined") {
+        return "";
+    }
+    if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    if (process.env.NODE_ENV === "production") {
+        console.warn("Missing NEXTAUTH_URL or VERCEL_URL in production!");
+    }
+    return "http://localhost:3000";
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {

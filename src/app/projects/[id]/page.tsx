@@ -3,10 +3,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { prisma } from "@/lib/prisma";
 import { User } from "@/app/types/user";
 import { notFound, redirect } from "next/navigation";
-import ProjectDetailsClient from "@/app/projects/[id]/ProjectDetailsClient";
+import ProjectDetailsClient, { ProjectDetailsClientProps } from "@/app/projects/[id]/ProjectDetailsClient";
 
 interface ProjectDetailsPageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function ProjectDetailsPage({
@@ -76,22 +76,24 @@ export default async function ProjectDetailsPage({
         }
 
         // Transform Prisma data to match expected types
-        const transformedProject = {
+        const transformedProject: ProjectDetailsClientProps = {
+          project: {
             ...project,
             description: project.description || "",
             createdAt: project.createdAt.toISOString(),
             contributors: project.contributors,
             tasks: project.tasks.map((task) => ({
-                ...task,
-                description: task.description || "",
-                createdAt: task.createdAt.toISOString(),
-                assignedTo: task.assignedTo || "",
+              ...task,
+              description: task.description || "",
+              createdAt: task.createdAt.toISOString(),
+              assignedTo: task.assignedTo || undefined,
             })),
+          },
         };
 
         return (
             <div className="container mx-auto px-4 py-8">
-                <ProjectDetailsClient project={transformedProject} />
+                <ProjectDetailsClient {...transformedProject} />
             </div>
         );
     } catch (error) {

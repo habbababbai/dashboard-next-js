@@ -5,7 +5,7 @@ import { authOptions } from "../api/auth/[...nextauth]/authOptions";
 import { User } from "../types/user";
 
 interface ProjectsPageProps {
-    searchParams?: { [key: string]: string | string[] | undefined };
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function ProjectsPage({

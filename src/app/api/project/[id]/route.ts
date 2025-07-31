@@ -4,13 +4,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { prisma } from "@/lib/prisma";
 import { User } from "@/app/types/user";
 
-export async function GET(
-    request: Request,
-    { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
         const session = await getServerSession(authOptions);
-        console.log("Session:", session);
         if (!session?.user) {
             return NextResponse.json(
                 { error: "Unauthorized" },

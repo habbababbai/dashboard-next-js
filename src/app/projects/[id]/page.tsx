@@ -6,17 +6,16 @@ import ProjectDetailsClient, {
 import { getProjectById } from "@/app/helpers/api";
 
 interface ProjectDetailsPageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
-export default async function ProjectDetailsPage({
-    params,
-}: ProjectDetailsPageProps) {
+export default async function ProjectDetailsPage(props: ProjectDetailsPageProps) {
+    const params = await props.params;
     try {
         // Pass cookies for authentication
         const data = await getProjectById(
             Number(params.id),
-            cookies().toString()
+            (await cookies()).toString()
         );
 
         // Handle API errors

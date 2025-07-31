@@ -3,27 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Project, Task } from "@/app/types/project";
+import type { User } from "@/app/types/user";
 
-interface ProjectDetailsClientProps {
-    project: Project & {
-        owner: {
-            id: number;
-            name: string;
-            email: string;
-        };
-        contributors: {
-            id: number;
-            name: string;
-            email: string;
-        }[];
-        tasks: (Task & {
-            assignedTo?: {
-                id: number;
-                name: string;
-                email: string;
-            };
-        })[];
-    };
+interface TaskWithAssigned extends Task {
+    assignedTo?: User;
+}
+
+interface ProjectWithRelations extends Project {
+    description?: string;
+    owner: User;
+    contributors: User[];
+    tasks: TaskWithAssigned[];
+}
+
+export interface ProjectDetailsClientProps {
+    project: ProjectWithRelations;
 }
 
 export default function ProjectDetailsClient({

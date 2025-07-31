@@ -4,7 +4,12 @@ function getBaseUrl() {
     if (typeof window !== "undefined") {
         return "";
     }
-    return process.env.NEXTAUTH_URL || "http://localhost:3000";
+    return (
+        process.env.NEXTAUTH_URL ||
+        (process.env.VERCEL_URL
+            ? `https://${process.env.VERCEL_URL}`
+            : "http://localhost:3000")
+    );
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {

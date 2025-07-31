@@ -1,3 +1,5 @@
+import { User } from "@/app/types/user";
+
 export interface Task {
     id: number;
     title: string;
@@ -21,4 +23,15 @@ export interface Project {
         email: string;
     };
     tasks: Task[];
+}
+
+export interface TaskWithAssigned extends Task {
+    assignedTo?: User;
+}
+
+export interface ProjectWithRelations extends Project {
+    description?: string;
+    owner: User;
+    contributors: User[];
+    tasks: TaskWithAssigned[];
 }

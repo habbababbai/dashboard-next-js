@@ -1,5 +1,5 @@
 import { formatDate } from "@/app/helpers/project";
-import { TaskWithAssigned } from "@/app/projects/[id]/ProjectDetailsClient";
+import { TaskWithAssigned } from "@/app/types/project";
 
 export default function TaskLabel(task: TaskWithAssigned) {
     function getTaskStatusColor(status: string): string {

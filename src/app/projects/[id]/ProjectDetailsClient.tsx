@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import type {  ProjectWithRelations} from "@/app/types/project";
+import type { ProjectWithRelations } from "@/app/types/project";
 import TabButton from "@/app/projects/[id]/TabButton";
 import ProjectInfo from "./ProjectInfo";
 import Tasks from "./Tasks";
@@ -17,13 +17,14 @@ export default function ProjectDetailsClient({
     const [activeTab, setActiveTab] = useState<
         "overview" | "tasks" | "addTask"
     >("overview");
+    const [currentProject, setCurrentProject] = useState(project);
     function getProjectStatus(): string {
-        if (project.tasks.length === 0) return "not-started";
+        if (currentProject.tasks.length === 0) return "not-started";
 
-        const completedTasks = project.tasks.filter(
+        const completedTasks = currentProject.tasks.filter(
             (task) => task.status === "completed"
         ).length;
-        const totalTasks = project.tasks.length;
+        const totalTasks = currentProject.tasks.length;
 
         if (completedTasks === 0) return "not-started";
         if (completedTasks === totalTasks) return "completed";
@@ -44,10 +45,10 @@ export default function ProjectDetailsClient({
     }
 
     const projectStatus = getProjectStatus();
-    const completedTasks = project.tasks.filter(
+    const completedTasks = currentProject.tasks.filter(
         (task) => task.status === "completed"
     ).length;
-    const totalTasks = project.tasks.length;
+    const totalTasks = currentProject.tasks.length;
 
     return (
         <div className="space-y-6">
@@ -62,11 +63,11 @@ export default function ProjectDetailsClient({
                         </Link>
                     </div>
                     <h1 className="text-3xl font-bold text-white mb-2">
-                        {project.name}
+                        {currentProject.name}
                     </h1>
-                    {project.description && (
+                    {currentProject.description && (
                         <p className="text-gray-300 text-lg">
-                            {project.description}
+                            {currentProject.description}
                         </p>
                     )}
                 </div>
@@ -107,14 +108,22 @@ export default function ProjectDetailsClient({
             {/* Tab Content */}
             {activeTab === "overview" && (
                 <ProjectInfo
-                    project={project}
+                    project={currentProject}
                     completedTasks={completedTasks}
                     totalTasks={totalTasks}
                 />
             )}
 
-            {activeTab === "tasks" && <Tasks project={project} />}
-            {activeTab === "addTask" && <AddTask />}
+            {activeTab === "tasks" && <Tasks project={currentProject} />}
+            {activeTab === "addTask" && (
+                <AddTask
+                    projectId={currentProject.id}
+                    onTaskCreated={() => {
+                        // Refresh the page to get updated project data
+                        window.location.reload();
+                    }}
+                />
+            )}
         </div>
     );
 }

@@ -78,3 +78,25 @@ export async function getProjectById(projectId: number, cookieHeader?: string) {
     }
     return res.json(); // { project }
 }
+
+export async function createTask(
+    projectId: number,
+    data: {
+        title: string;
+        description: string;
+        assignedToId?: number;
+    }
+) {
+    const baseUrl = getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/project/${projectId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to create task: ${res.statusText}`);
+    }
+    return res.json(); // { task }
+}

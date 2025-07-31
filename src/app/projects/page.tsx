@@ -13,6 +13,7 @@ export default async function ProjectsPage({
 }: ProjectsPageProps) {
     try {
         const session = await getServerSession(authOptions);
+        console.log("Session:", session);
         const user = session?.user as User;
         const awaitedParams = await searchParams;
         const searchParamsPage = (awaitedParams?.page as string) || "1";

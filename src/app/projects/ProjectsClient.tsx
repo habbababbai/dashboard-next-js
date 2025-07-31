@@ -1,17 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { ProjectsClientProps, Project } from "@/app/types/project";
+import type { Project } from "@/app/types/project";
+
+export interface ProjectsClientProps {
+    initialProjects: Project[];
+    total: number;
+    page: number;
+    pageSize: number;
+}
 
 export default function ProjectsClient({
     initialProjects,
+    total,
+    page,
+    pageSize,
 }: ProjectsClientProps) {
-    const [projects, setProjects] = useState<Project[]>(initialProjects);
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
 
     // Filter projects based on search term and status
-    const filteredProjects = projects.filter((project) => {
+    const filteredProjects = initialProjects.filter((project) => {
         const matchesSearch =
             project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             project.description
@@ -127,6 +136,15 @@ export default function ProjectsClient({
         });
     }
 
+    // Pagination logic
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+    function goToPage(newPage: number) {
+        const params = new URLSearchParams(window.location.search);
+        params.set("page", newPage.toString());
+        window.location.search = params.toString();
+    }
+
     return (
         <div className="space-y-6">
             {/* Search and Filter Controls */}
@@ -137,14 +155,14 @@ export default function ProjectsClient({
                         placeholder="Search projects..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400"
                     />
                 </div>
                 <div className="sm:w-48">
                     <select
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-600 bg-gray-800 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="all">All Projects</option>
                         <option value="not-started">Not Started</option>
@@ -157,7 +175,7 @@ export default function ProjectsClient({
             {/* Projects Grid */}
             {filteredProjects.length === 0 ? (
                 <div className="text-center py-12">
-                    <div className="text-gray-400 mb-4">
+                    <div className="text-gray-500 mb-4">
                         <svg
                             className="mx-auto h-12 w-12"
                             fill="none"
@@ -172,10 +190,10 @@ export default function ProjectsClient({
                             />
                         </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    <h3 className="text-lg font-medium text-white mb-2">
                         No projects found
                     </h3>
-                    <p className="text-gray-500">
+                    <p className="text-gray-400">
                         {searchTerm || filterStatus !== "all"
                             ? "Try adjusting your search or filter criteria."
                             : "Get started by creating your first project."}
@@ -193,17 +211,17 @@ export default function ProjectsClient({
                         return (
                             <div
                                 key={project.id}
-                                className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
+                                className="bg-gray-800 rounded-lg shadow-sm border border-gray-700 hover:shadow-lg hover:border-gray-600 transition-all duration-200"
                             >
                                 <div className="p-6">
                                     {/* Project Header */}
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex-1">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                                            <h3 className="text-lg font-semibold text-white mb-1">
                                                 {project.name}
                                             </h3>
                                             {project.description && (
-                                                <p className="text-sm text-gray-600 line-clamp-2">
+                                                <p className="text-sm text-gray-300 line-clamp-2">
                                                     {project.description}
                                                 </p>
                                             )}
@@ -222,7 +240,7 @@ export default function ProjectsClient({
 
                                     {/* Project Stats */}
                                     <div className="space-y-3 mb-4">
-                                        <div className="flex items-center text-sm text-gray-500">
+                                        <div className="flex items-center text-sm text-gray-400">
                                             <svg
                                                 className="w-4 h-4 mr-2"
                                                 fill="none"
@@ -241,7 +259,7 @@ export default function ProjectsClient({
                                             </span>
                                         </div>
 
-                                        <div className="flex items-center text-sm text-gray-500">
+                                        <div className="flex items-center text-sm text-gray-400">
                                             <svg
                                                 className="w-4 h-4 mr-2"
                                                 fill="none"
@@ -263,10 +281,10 @@ export default function ProjectsClient({
 
                                         {totalTasks > 0 && (
                                             <div className="flex items-center justify-between">
-                                                <span className="text-sm text-gray-500">
+                                                <span className="text-sm text-gray-400">
                                                     Progress
                                                 </span>
-                                                <span className="text-sm font-medium text-gray-900">
+                                                <span className="text-sm font-medium text-white">
                                                     {completedTasks}/
                                                     {totalTasks} tasks
                                                 </span>
@@ -277,9 +295,9 @@ export default function ProjectsClient({
                                     {/* Progress Bar */}
                                     {totalTasks > 0 && (
                                         <div className="mb-4">
-                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                            <div className="w-full bg-gray-700 rounded-full h-2">
                                                 <div
-                                                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
                                                     style={{
                                                         width: `${
                                                             (completedTasks /
@@ -296,13 +314,13 @@ export default function ProjectsClient({
                                     <div className="flex space-x-2">
                                         <button
                                             disabled
-                                            className="flex-1 bg-gray-400 text-gray-200 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed transition-colors duration-200"
+                                            className="flex-1 bg-gray-600 text-gray-300 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed transition-colors duration-200"
                                         >
                                             View Details
                                         </button>
                                         <button
                                             disabled
-                                            className="px-4 py-2 border border-gray-300 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed transition-colors duration-200"
+                                            className="px-4 py-2 border border-gray-600 text-gray-400 rounded-lg text-sm font-medium cursor-not-allowed transition-colors duration-200"
                                         >
                                             Edit
                                         </button>
@@ -314,11 +332,32 @@ export default function ProjectsClient({
                 </div>
             )}
 
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center gap-4 mt-8">
+                <button
+                    className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors duration-200"
+                    onClick={() => goToPage(page - 1)}
+                    disabled={page <= 1}
+                >
+                    Previous
+                </button>
+                <span className="text-white">
+                    Page {page} of {totalPages}
+                </span>
+                <button
+                    className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors duration-200"
+                    onClick={() => goToPage(page + 1)}
+                    disabled={page >= totalPages}
+                >
+                    Next
+                </button>
+            </div>
+
             {/* Create New Project Button */}
             <div className="text-center pt-8">
                 <button
                     disabled
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gray-400 cursor-not-allowed transition-colors duration-200"
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gray-600 cursor-not-allowed transition-colors duration-200"
                 >
                     <svg
                         className="w-5 h-5 mr-2"

@@ -20,7 +20,3 @@ export interface Project {
     };
     tasks: Task[];
 }
-
-export interface ProjectsClientProps {
-    initialProjects: Project[];
-}

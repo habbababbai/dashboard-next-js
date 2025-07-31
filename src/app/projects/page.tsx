@@ -4,16 +4,28 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]/authOptions";
 import { User } from "../types/user";
 
-export default async function ProjectsPage() {
+interface ProjectsPageProps {
+    searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+export default async function ProjectsPage({
+    searchParams,
+}: ProjectsPageProps) {
     try {
         const session = await getServerSession(authOptions);
         const user = session?.user as User;
-        const projects = await getProjectsByUserId(user?.id);
+        const page = parseInt((searchParams?.page as string) || "1", 10);
+        const pageSize = 12;
+        const { projects, total } = await getProjectsByUserId(
+            user?.id,
+            page,
+            pageSize
+        );
 
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-3xl font-bold text-white-900 mb-2">
                         My Projects
                     </h1>
                     <p className="text-gray-600">
@@ -21,7 +33,12 @@ export default async function ProjectsPage() {
                     </p>
                 </div>
 
-                <ProjectsClient initialProjects={projects} />
+                <ProjectsClient
+                    initialProjects={projects}
+                    total={total}
+                    page={page}
+                    pageSize={pageSize}
+                />
             </div>
         );
     } catch (error) {

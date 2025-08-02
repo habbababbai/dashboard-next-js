@@ -3,12 +3,14 @@
 import { useState } from "react";
 import type { Project } from "@/app/types/project";
 import ProjectCard from "@/app/projects/ProjectCard";
+import CreateProjectForm from "@/app/projects/CreateProjectForm";
 
 export interface ProjectsClientProps {
     initialProjects: Project[];
     total: number;
     page: number;
     pageSize: number;
+    userId: number;
 }
 
 export default function ProjectsClient({
@@ -16,12 +18,15 @@ export default function ProjectsClient({
     total,
     page,
     pageSize,
+    userId,
 }: ProjectsClientProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [projects, setProjects] = useState<Project[]>(initialProjects);
 
     // Filter projects based on search term and status
-    const filteredProjects = initialProjects.filter((project) => {
+    const filteredProjects = projects.filter((project) => {
         const matchesSearch =
             project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             project.description
@@ -146,6 +151,11 @@ export default function ProjectsClient({
         window.location.search = params.toString();
     }
 
+    function handleProjectCreated(newProject: Project) {
+        setProjects([newProject, ...projects]);
+        setShowCreateForm(false);
+    }
+
     return (
         <div className="space-y-6">
             {/* Search and Filter Controls */}
@@ -239,8 +249,8 @@ export default function ProjectsClient({
             {/* Create New Project Button */}
             <div className="text-center pt-8">
                 <button
-                    disabled
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gray-600 cursor-not-allowed transition-colors duration-200"
+                    onClick={() => setShowCreateForm(true)}
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
                 >
                     <svg
                         className="w-5 h-5 mr-2"
@@ -258,6 +268,15 @@ export default function ProjectsClient({
                     Create New Project
                 </button>
             </div>
+
+            {/* Create Project Form Modal */}
+            {showCreateForm && (
+                <CreateProjectForm
+                    onProjectCreated={handleProjectCreated}
+                    onCancel={() => setShowCreateForm(false)}
+                    userId={userId}
+                />
+            )}
         </div>
     );
 }

@@ -100,3 +100,22 @@ export async function createTask(
     }
     return res.json(); // { task }
 }
+
+export async function updateTaskStatus(
+    projectId: number,
+    taskId: number,
+    status: string
+) {
+    const baseUrl = getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/project/${projectId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId, status }),
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to update task status: ${res.statusText}`);
+    }
+    return res.json(); // { task }
+}

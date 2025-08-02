@@ -4,7 +4,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import { prisma } from "@/lib/prisma";
 import { User } from "@/app/types/user";
 
-export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+    request: Request,
+    props: { params: Promise<{ id: string }> }
+) {
     const params = await props.params;
     try {
         const session = await getServerSession(authOptions);
@@ -67,6 +70,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
                 description: task.description || "",
                 createdAt: task.createdAt.toISOString(),
                 assignedTo: task.assignedTo || undefined,
+                projectId: project.id,
             })),
         };
 
@@ -83,18 +87,27 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
     }
 }
 
-export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function POST(
+    request: Request,
+    props: { params: Promise<{ id: string }> }
+) {
     const params = await props.params;
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
         }
         const user = session.user as User;
         const userId = user.id;
         const projectId = parseInt(params.id, 10);
         if (isNaN(projectId)) {
-            return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+            return NextResponse.json(
+                { error: "Invalid project ID" },
+                { status: 400 }
+            );
         }
 
         const body = await request.json();
@@ -103,11 +116,15 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
         // Check permissions (owner or contributor)
         const project = await prisma.project.findUnique({
             where: { id: projectId },
-            include: { contributors: true, owner: true }
+            include: { contributors: true, owner: true },
         });
-        if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!project)
+            return NextResponse.json(
+                { error: "Project not found" },
+                { status: 404 }
+            );
         const isOwner = project.ownerId === Number(userId);
-        const isContributor = project.contributors.some(c => c.id === userId);
+        const isContributor = project.contributors.some((c) => c.id === userId);
         if (!isOwner && !isContributor) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
@@ -125,22 +142,34 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
         return NextResponse.json({ task: newTask }, { status: 201 });
     } catch (error) {
         console.error("API error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
     }
 }
 
-export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function PUT(
+    request: Request,
+    props: { params: Promise<{ id: string }> }
+) {
     const params = await props.params;
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
         }
         const user = session.user as User;
         const userId = user.id;
         const projectId = parseInt(params.id, 10);
         if (isNaN(projectId)) {
-            return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+            return NextResponse.json(
+                { error: "Invalid project ID" },
+                { status: 400 }
+            );
         }
 
         const body = await request.json();
@@ -149,11 +178,15 @@ export async function PUT(request: Request, props: { params: Promise<{ id: strin
         // Check permissions
         const project = await prisma.project.findUnique({
             where: { id: projectId },
-            include: { contributors: true, owner: true }
+            include: { contributors: true, owner: true },
         });
-        if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!project)
+            return NextResponse.json(
+                { error: "Project not found" },
+                { status: 404 }
+            );
         const isOwner = project.ownerId === Number(userId);
-        const isContributor = project.contributors.some(c => c.id === userId);
+        const isContributor = project.contributors.some((c) => c.id === userId);
         if (!isOwner && !isContributor) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
@@ -166,22 +199,34 @@ export async function PUT(request: Request, props: { params: Promise<{ id: strin
         return NextResponse.json({ task: updatedTask }, { status: 200 });
     } catch (error) {
         console.error("API error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
     }
 }
 
-export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+export async function DELETE(
+    request: Request,
+    props: { params: Promise<{ id: string }> }
+) {
     const params = await props.params;
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
         }
         const user = session.user as User;
         const userId = user.id;
         const projectId = parseInt(params.id, 10);
         if (isNaN(projectId)) {
-            return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
+            return NextResponse.json(
+                { error: "Invalid project ID" },
+                { status: 400 }
+            );
         }
 
         const body = await request.json();
@@ -190,11 +235,15 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
         // Check permissions
         const project = await prisma.project.findUnique({
             where: { id: projectId },
-            include: { contributors: true, owner: true }
+            include: { contributors: true, owner: true },
         });
-        if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+        if (!project)
+            return NextResponse.json(
+                { error: "Project not found" },
+                { status: 404 }
+            );
         const isOwner = project.ownerId === Number(userId);
-        const isContributor = project.contributors.some(c => c.id === userId);
+        const isContributor = project.contributors.some((c) => c.id === userId);
         if (!isOwner && !isContributor) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
@@ -206,6 +255,9 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
         console.error("API error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
     }
 }

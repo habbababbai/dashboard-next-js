@@ -5,9 +5,7 @@ interface ProjectInfoProps {
     project: ProjectWithRelations;
 }
 
-export default function Tasks({
-    project,
-}: ProjectInfoProps) {
+export default function Tasks({ project }: ProjectInfoProps) {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -40,7 +38,11 @@ export default function Tasks({
             ) : (
                 <div className="space-y-4">
                     {project.tasks.map((task) => (
-                        <TaskLabel key={task.id} {...task} />
+                        <TaskLabel
+                            key={task.id}
+                            {...task}
+                            projectId={project.id}
+                        />
                     ))}
                 </div>
             )}

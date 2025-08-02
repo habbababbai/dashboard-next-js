@@ -40,6 +40,7 @@ export default async function ProjectsPage({
                     total={total}
                     page={page}
                     pageSize={pageSize}
+                    userId={user?.id}
                 />
             </div>
         );

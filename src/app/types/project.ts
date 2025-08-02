@@ -27,6 +27,7 @@ export interface Project {
 
 export interface TaskWithAssigned extends Task {
     assignedTo?: User;
+    projectId: number;
 }
 
 export interface ProjectWithRelations extends Project {

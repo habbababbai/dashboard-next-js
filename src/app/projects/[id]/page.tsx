@@ -1,94 +1,39 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
-import { prisma } from "@/lib/prisma";
-import { User } from "@/app/types/user";
 import { notFound, redirect } from "next/navigation";
-import ProjectDetailsClient, { ProjectDetailsClientProps } from "@/app/projects/[id]/ProjectDetailsClient";
+import { cookies } from "next/headers";
+import ProjectDetailsClient, {
+    ProjectDetailsClientProps,
+} from "@/app/projects/[id]/ProjectDetailsClient";
+import { getProjectById } from "@/app/helpers/api";
 
 interface ProjectDetailsPageProps {
     params: Promise<{ id: string }>;
 }
 
-export default async function ProjectDetailsPage({
-    params,
-}: ProjectDetailsPageProps) {
+export default async function ProjectDetailsPage(props: ProjectDetailsPageProps) {
+    const params = await props.params;
     try {
-        const session = await getServerSession(authOptions);
-        const user = session?.user as User;
-
-        if (!user) {
-            redirect("/signin");
-        }
-        const { id } = await params;
-        const projectId = await parseInt(id);
-        if (isNaN(projectId)) {
-            notFound();
-        }
-
-        // Fetch project with all related data
-        const project = await prisma.project.findUnique({
-            where: { id: projectId },
-            include: {
-                owner: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                contributors: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    },
-                },
-                tasks: {
-                    include: {
-                        assignedTo: {
-                            select: {
-                                id: true,
-                                name: true,
-                                email: true,
-                            },
-                        },
-                    },
-                    orderBy: {
-                        createdAt: "desc",
-                    },
-                },
-            },
-        });
-
-        if (!project) {
-            notFound();
-        }
-
-        // Check authorization - owner or contributors can view project details
-        const isOwner = project.ownerId === Number(user.id);
-
-        const isContributor = project.contributors.some(
-            (contributor) => contributor.id === user.id
+        // Pass cookies for authentication
+        const data = await getProjectById(
+            Number(params.id),
+            (await cookies()).toString()
         );
 
-        if (!isOwner && !isContributor) {
+        // Handle API errors
+        if (data?.error === "Unauthorized") {
+            redirect("/signin");
+        }
+        if (data?.error === "Forbidden") {
             redirect("/projects");
         }
+        if (data?.error === "Project not found") {
+            notFound();
+        }
+        if (!data?.project) {
+            throw new Error("Failed to fetch project");
+        }
 
-        // Transform Prisma data to match expected types
         const transformedProject: ProjectDetailsClientProps = {
-          project: {
-            ...project,
-            description: project.description || "",
-            createdAt: project.createdAt.toISOString(),
-            contributors: project.contributors,
-            tasks: project.tasks.map((task) => ({
-              ...task,
-              description: task.description || "",
-              createdAt: task.createdAt.toISOString(),
-              assignedTo: task.assignedTo || undefined,
-            })),
-          },
+            project: data.project,
         };
 
         return (

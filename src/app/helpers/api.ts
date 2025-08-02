@@ -60,3 +60,62 @@ export async function createProject(data: {
     }
     return res.json();
 }
+
+export async function getProjectById(projectId: number, cookieHeader?: string) {
+    const baseUrl = getBaseUrl();
+    const headers: HeadersInit = {
+        "Content-Type": "application/json",
+    };
+    if (cookieHeader) {
+        headers["Cookie"] = cookieHeader;
+    }
+    const res = await fetch(`${baseUrl}/api/project/${projectId}`, {
+        cache: "no-store",
+        headers,
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to fetch project: ${res.statusText}`);
+    }
+    return res.json(); // { project }
+}
+
+export async function createTask(
+    projectId: number,
+    data: {
+        title: string;
+        description: string;
+        assignedToId?: number;
+    }
+) {
+    const baseUrl = getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/project/${projectId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to create task: ${res.statusText}`);
+    }
+    return res.json(); // { task }
+}
+
+export async function updateTaskStatus(
+    projectId: number,
+    taskId: number,
+    status: string
+) {
+    const baseUrl = getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/project/${projectId}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ taskId, status }),
+    });
+    if (!res.ok) {
+        throw new Error(`Failed to update task status: ${res.statusText}`);
+    }
+    return res.json(); // { task }
+}
